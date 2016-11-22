@@ -59,76 +59,32 @@ def MonitoringSftp host
 
   puts host
 
-  # FileWatcher.new(["#{localPath}/*"]).watch() do |filename, event|
-  #
-  #  scp = "scp -r #{filename} #{login}@#{host}:#{remotePath}"
-  #
-  #   if(event == :changed)
-  #    puts filename.colorize :light_blue
-  #     `#{scp}`
-  #   end
-  #
-  #   if(event == :delete)
-  #    p  uts "File deleted: " + filename
-  #   end
-  #
-  #   if(event == :new)
-  #    puts filename.blue.on_red
-  #     `#{scp}`
-  #   end
-  #
-  # end
+  localPath = host[:lp]
+  remotePath = host[:rp]
+  login = host[:username]
+  host = host[:host]
+
+  FileWatcher.new(["#{localPath}/*"]).watch() do |filename, event|
+
+   scp = "scp -r #{filename} #{login}@#{host}:#{remotePath}"
+
+    if(event == :changed)
+     puts filename.colorize :light_blue
+      `#{scp}`
+    end
+
+    if(event == :delete)
+     p  uts "File deleted: " + filename
+    end
+
+    if(event == :new)
+     puts filename.blue.on_red
+      `#{scp}`
+    end
+
+  end
 
 end
-
-def newHost
-
-  puts "- Server name :"
-  serverName = STDIN.gets.chomp
-
-  puts "- Host adress :"
-  host = STDIN.gets.chomp
-
-  puts "- User login :"
-  login = STDIN.gets.chomp
-
-  puts "- Local path :"
-  localPath = STDIN.gets.chomp
-
-  puts "- Remote path : "
-  remotePath = STDIN.gets.chomp
-
-  data = Hash["serverName" => serverName, "host" => host, "login" => login, "localPath" => localPath, "remotePath" => remotePath]
-
-  saveHost data
-
-end
-
-
-
-def testhost
-  # data = "{"
-  f = File.read "Hosts.json"
-  data = JSON.parse f
-  # data .= "}"
-  puts data
-end
-
-
-#  flags
-# args = Hash[ ARGV.join(' ').scan(/--?([^=\s]+)(?:=(\S+))?/) ]
-
-
-# if(ARGV[0] == "new")
-#   puts yamlHost
-#   # puts newHost
-# elsif(ARGV[0] == "test")
-#   puts "Je suis un serveur deja établis"
-#   testhost
-# elsif ARGV[0] == ""
-# else
-#   puts "no arg"
-# end
 
 
 # system("clear")
@@ -148,19 +104,30 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: example.rb [options]"
 
-  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
-    options[:verbose] = v
-  end
+  opts.on('-a=s', '--address',"Host adress") {|h| options[:host] = h}
+  opts.on('-u=s', '--username',"host Username") {|username| options[:username] = username}
+  opts.on('-l=s', '--localpath',"Local path") {|lp| options[:lp] = lp}
+  opts.on('-r=s', '--remotepath',"Local path") {|rp| options[:rp] = rp}
 
-  opts.on("-t", "--[no-]test", "test") do |o|
-    options[:test] = o
-    # getArg t
-  end
-  opts.on "-x", "--[no-]xx", "suivi de test" do |o|
-    options[:xx] = 0
-    # getArg x
-  end
 
 end.parse!
 
-puts options
+# options = OptparseExample.parse(ARGV)
+# p options.parse ARGV
+
+# p options
+
+
+MonitoringSftp options
+
+
+
+
+#
+# begin
+#   ARGV << "-h" if ARGV.size != 2
+#   option_parser.parse!(ARGV)
+# rescue OptionParser::ParseError
+#   $stderr.print "Error: " + $! + "\n"
+#   exit
+# end
