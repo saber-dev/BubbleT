@@ -10,16 +10,20 @@ require 'optparse'
 
 def MonitoringSftp host
 
-  puts host
+
 
   localPath = host[:lp]
   remotePath = host[:rp]
   login = host[:username]
   host = host[:host]
 
-  FileWatcher.new(["#{localPath}/*"]).watch() do |filename, event|
+  system 'clear'
+  puts localPath
 
-   scp = "scp -r #{filename} #{login}@#{host}:#{remotePath}"
+  # Mettre en place un tableau pour le systeme de monitoring
+  FileWatcher.new(["#{localPath}"]).watch() do |filename, event|
+
+    scp = "scp -r #{localPath} #{login}@#{host}:#{remotePath}"
 
     if(event == :changed)
      puts filename.colorize :light_blue
